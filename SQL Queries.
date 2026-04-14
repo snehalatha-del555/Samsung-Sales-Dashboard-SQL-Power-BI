@@ -1,0 +1,245 @@
+select * from dbo.samsung_global_sales_dataset;-----------------total data
+
+SELECT SUM(revenue_usd) AS total_revenue FROM dbo.samsung_global_sales_dataset;----------total revenue in USD.
+
+SELECT product_name, SUM(revenue_usd) AS revenue
+FROM dbo.samsung_global_sales_dataset
+GROUP BY product_name
+ORDER BY revenue DESC;-----------------------------------revenue by product.
+
+SELECT country, SUM(revenue_usd) AS revenue
+FROM dbo.samsung_global_sales_dataset
+GROUP BY country
+ORDER BY revenue DESC;----------------------------------revenue by country.
+
+SELECT return_status, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM dbo.samsung_global_sales_dataset) AS percentage
+FROM dbo.samsung_global_sales_dataset
+GROUP BY return_status;---------------------------percentage of return status.
+
+SELECT sales_channel, SUM(revenue_usd) AS revenue
+FROM dbo.samsung_global_sales_dataset
+GROUP BY sales_channel;-------------------------------------channel performance.
+
+SELECT discount_pct, AVG(revenue_usd) AS avg_revenue
+FROM dbo.samsung_global_sales_dataset
+GROUP BY discount_pct
+ORDER BY discount_pct;--------------------discount percentage and average revenue.
+
+select SUM(units_sold) as total_units_sold, 
+	   SUM(revenue_usd) as total_revenue_usd, 
+	   AVG(customer_rating) as average_customer_rating
+	   from dbo.samsung_global_sales_dataset;-----------------------total units sold,total revenue,avg customer rating.
+
+	   select country, SUM(units_sold) as total_units_sold
+	   from dbo.samsung_global_sales_dataset
+	   group by country;------------------------------------------------total units sold by country.
+
+
+	   select sale_id, sale_date, product_name, revenue_usd, customer_rating, return_status,category,storage,color
+	   from dbo.samsung_global_sales_dataset
+	   where sale_id is null
+	   or sale_date is null
+	   or product_name is null
+	   or revenue_usd is null
+	   or customer_rating is null
+	   or return_status is null
+	   or category is null
+	   or storage is null
+	   or color is null;----------------------------------------------fields with null values or not.
+
+	   select sale_id ,count(*)
+	   from dbo.samsung_global_sales_dataset
+	   group by sale_id
+	   having count(*) > 1;-----------------------------------------------------------duplicates.
+
+UPDATIONS*****
+
+
+update dbo.samsung_global_sales_dataset
+set return_status = 'Returned'
+where return_status is null;--------------------------------------updating null return status to 'Returned'.
+
+update dbo.samsung_global_sales_dataset
+set customer_rating = 0
+where customer_rating is null;--------------------------------------------updating null customer rating to 0.
+
+update dbo.samsung_global_sales_dataset
+set category = 'Unknown'
+where category is null;---------------------------------------------------updating null category to 'Unknown'.
+
+update dbo.samsung_global_sales_dataset
+set fx_rate_to_usd = 1
+where fx_rate_to_usd is null;----------------------------------------------updating null fx_rate_to_usd to 1.
+
+update dbo.samsung_global_sales_dataset
+set sale_date = GETDATE()
+where sale_date is null;------------------------------------------------updating null sale date to current date.
+
+update dbo.samsung_global_sales_dataset
+set customer_rating = (select AVG(customer_rating) from dbo.samsung_global_sales_dataset)
+where customer_rating = 0;----------------------------updating customer rating of 0 to the average customer rating.
+
+	   update dbo.samsung_global_sales_dataset
+	   set sale_date = GETDATE()
+	   where sale_date is null;---------------------------------------------updating null sale date to current date.
+
+	   update dbo.samsung_global_sales_dataset
+	   set customer_rating = (select AVG(customer_rating) from dbo.samsung_global_sales_dataset)
+	   where customer_rating = 0;------------------------updating customer rating of 0 to the average customer rating.
+
+
+	   update dbo.samsung_global_sales_dataset
+	   set storage = 'Unknown'
+	   where storage is null;-------------------------------------------------------updating null storage to 'Unknown'.
+
+	   select revenue_usd
+	   from dbo.samsung_global_sales_dataset
+	   where revenue_usd < 0;--------------------------------------------------selecting records with negative revenue.
+
+	   select customer_rating
+	   from dbo.samsung_global_sales_dataset
+	   where customer_rating < 0 and customer_rating > 5;---------------selecting records with customer rating less than 0 or greater than 5.
+
+
+select product_name,revenue_usd,
+RANK() OVER (ORDER BY revenue_usd DESC) AS revenue_rank
+from dbo.samsung_global_sales_dataset;-------------------selects the product name, revenue, and ranks the products based on revenue in descending order.
+
+select country, SUM(revenue_usd) as total_revenue_usd
+from dbo.samsung_global_sales_dataset
+group by country
+order by total_revenue_usd DESC;-------------------------------selects the country and total revenue in USD, groups the results by country, and orders them in descending order based on total revenue.
+
+select category, AVG(customer_rating) as average_customer_rating
+from dbo.samsung_global_sales_dataset
+group by category
+order by average_customer_rating DESC;-----------------------category and avg cus rating in each category by descending order.
+
+select storage, SUM(units_sold) as total_units_sold
+from dbo.samsung_global_sales_dataset
+group by storage
+order by total_units_sold DESC;--------------------------storage and total units sold, groups the results by storage, and orders them in descending order based on total units sold.
+
+
+select * from dbo.samsung_global_sales_dataset;
+
+
+select top 3 * from dbo.samsung_global_sales_dataset
+order by revenue_usd desc;---------------------------------selects the top 3 records from the samsung_global_sales_dataset table based on the highest revenue in USD.
+
+select top 3 * from dbo.samsung_global_sales_dataset
+order by category desc;----------------------------------------top 3 with country in desc
+
+select top 3 count(*) as total_count,country,category from dbo.samsung_global_sales_dataset
+group by country,category
+order by total_count desc;----------------------------------top 3 of category with country in desc.
+
+select top 3 count(*) as total_count,country,category from dbo.samsung_global_sales_dataset
+group by country,category
+order by total_count asc;--------------------------------top 3 of category with country in asc.
+
+select FORMAT(sale_date, 'yyyy-MM') as month, SUM(revenue_usd) as total_revenue_usd
+from dbo.samsung_global_sales_dataset
+group by FORMAT(sale_date, 'yyyy-MM')
+order by month;-------------------------------month and total revenue in ascending order based on month.
+
+select FORMAT(sale_date, 'yyyy-MM') as month, SUM(revenue_usd) as total_revenue_usd
+from dbo.samsung_global_sales_dataset
+group by FORMAT(sale_date, 'yyyy-MM')
+order by month;----------------------------------------month and total revenue in ascending order based on month.
+
+SELECT sale_date,
+    SUM(revenue_usd) AS daily_revenue,
+    SUM(SUM(revenue_usd)) OVER (ORDER BY sale_date) AS running_total
+FROM dbo.samsung_global_sales_dataset
+GROUP BY sale_date
+ORDER BY sale_date;------------------------------------------sale date, daily revenue, and running total of revenue ordered by sale date.
+
+SELECT sale_date,
+    SUM(revenue_usd) AS daily_revenue,
+    SUM(SUM(revenue_usd)) OVER (ORDER BY sale_date) AS running_total
+FROM dbo.samsung_global_sales_dataset
+GROUP BY sale_date
+ORDER BY running_total desc;---------------------------------------------------------------daily revenue with runing total.
+
+SELECT 
+    product_name,
+    COUNT(CASE WHEN return_status = 'Returned' THEN 1 END) * 100.0 / COUNT(*) AS return_rate
+FROM dbo.samsung_global_sales_dataset
+GROUP BY product_name
+ORDER BY return_rate DESC;----------------------------------------------------------------return rate by products
+
+
+
+SELECT 
+    sales_channel,
+    SUM(revenue_usd) AS revenue,
+    SUM(revenue_usd) * 100.0 / (SELECT SUM(revenue_usd) FROM dbo.samsung_global_sales_dataset) AS percentage
+FROM dbo.samsung_global_sales_dataset
+GROUP BY sales_channel;-----------------------------------------------------------------channel contribution to revenue
+
+SELECT sale_id,category,product_name
+FROM dbo.samsung_global_sales_dataset
+GROUP BY sale_id,category,product_name
+HAVING MAX(sale_date) < DATEADD(MONTH, -6, GETDATE());----------------------------------------who stopped buying for more than 6 months
+
+
+SELECT top 1
+    FORMAT(sale_date, 'yyyy-MM') AS month,
+    SUM(revenue_usd) AS revenue
+FROM dbo.samsung_global_sales_dataset
+GROUP BY month,year,sale_date
+ORDER BY revenue DESC;---------------------------------------------------------------------------the month with the highest revenue. 
+
+CREATION OF THE CLEANED TABLE.......
+SELECT *
+INTO clean_sales
+FROM samsung_global_sales_dataset
+WHERE revenue_usd > 0
+AND customer_rating BETWEEN 1 AND 5;---------------------------------creates a new table called clean_sales with records that have positive revenue and customer ratings between 1 and 5.
+
+select * from clean_sales;----------------------------------------------selects all records from the clean_sales table.
+
+WITH cohort AS (
+    SELECT 
+        sale_id,
+        MIN(sale_date) AS cohort_date
+    FROM clean_sales
+    GROUP BY sale_id
+),
+activity AS (
+    SELECT 
+        s.sale_id,
+        c.cohort_date,
+        s.sale_date,
+        DATEDIFF(MONTH, c.cohort_date, s.sale_date) AS month_index
+    FROM clean_sales s
+    JOIN cohort c ON s.sale_id = c.sale_id
+)
+SELECT 
+    cohort_date,
+    month_index,
+    COUNT(DISTINCT sale_id) AS users
+FROM activity
+GROUP BY cohort_date, month_index
+ORDER BY cohort_date, month_index;------------------------------------------------cohorot analysis to track retention of users over time based on their 1st purchase.
+
+
+SELECT 
+    COUNT(DISTINCT sale_id) AS total_customers,
+    COUNT(DISTINCT CASE WHEN order_count > 1 THEN sale_id END) AS repeat_customers
+FROM (
+    SELECT sale_id, COUNT(*) AS order_count
+    FROM clean_sales
+    GROUP BY sale_id
+) t;-------------------------------------------------------repeated customers and total customers.
+
+SELECT 
+    sale_id,
+    CASE 
+        WHEN COUNT(*) = 1 THEN 'New'
+        WHEN MAX(sale_date) < DATEADD(MONTH, -6, GETDATE()) THEN 'Churned'
+        ELSE 'Active'
+    END AS lifecycle_stage
+FROM clean_sales
+GROUP BY sale_id;---------------------------------------------------------------------------classifies cus lifecycle stage as new,active,churned based on last purchase.
