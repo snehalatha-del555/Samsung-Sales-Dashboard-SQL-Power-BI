@@ -25,7 +25,8 @@ Tools Used
 - Return rate (~14%) indicates product gaps
 
 ## 📊 Dashboard Preview
-![Dashboard](images/dashboard.png)
+![Dashboard]<img width="1287" height="704" alt="image" src="https://github.com/user-attachments/assets/50a690f5-d599-41ca-8eb2-63e11dd07c71" />
+
 
 ## ❓ Business Questions Answered
 - Which products generate the most revenue?
